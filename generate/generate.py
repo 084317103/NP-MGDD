@@ -88,7 +88,7 @@ if __name__ == '__main__':
         results = pd.DataFrame(mol_dict)
         canon_smiles = [canonic_smiles(s) for s in results['smiles']]
         unique_smiles = list(set(canon_smiles))
-        novel_ratio = check_novelty(unique_smiles, 'MolGPT/datasets/zuhe/merged_smiles_after.txt')   
+        novel_ratio = check_novelty(unique_smiles, 'NP-MGDD/datasets/zuhe/merged_smiles_after.txt')   
           
         print('Valid ratio: ', np.round(len(results)/10000, 3))
         print('Unique ratio: ', np.round(len(unique_smiles)/len(results), 3))
@@ -97,7 +97,7 @@ if __name__ == '__main__':
         results['qed'] = results['molecule'].apply(lambda x: QED.qed(x) )
         all_dfs.append(results)
         results = pd.concat(all_dfs)
-        results.to_csv('MolGPT/' + args.csv_name + '.csv', index = False)
+        results.to_csv('NP-MGDD/' + args.csv_name + '.csv', index = False)
         
         
              

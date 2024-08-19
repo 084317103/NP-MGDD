@@ -9,8 +9,8 @@ def filter_mol(mol, max_heavy_atoms=100, min_heavy_atoms=10):
             return False
 
 
-with open("MolGPT/datasets/zuhe/merged_smiles.txt", "r") as infile:
-    with open("MolGPT/datasets/zuhe/merged_smiles_after.txt", "w") as outfile:
+with open("NP-MGDD/datasets/zuhe/merged_smiles.txt", "r") as infile:
+    with open("NP-MGDD/datasets/zuhe/merged_smiles_after.txt", "w") as outfile:
         lines = infile.readlines()
         for line in lines:
             line = line.strip()

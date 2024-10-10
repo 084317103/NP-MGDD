@@ -30,12 +30,12 @@ if __name__ == '__main__':
         parser.add_argument('--model_weight', type=str, help="path of model weights", required=True)
         parser.add_argument('--csv_name', type=str, help="name to save the generated mols in csv format", required=True)
         parser.add_argument('--batch_size', type=int, default = 512, help="batch size", required=False)
-        parser.add_argument('--gen_size', type=int, default = 10000, help="number of times to generate from a batch", required=False)
-        parser.add_argument('--vocab_size', type=int, default = 144, help="number of layers", required=False) 
-        parser.add_argument('--block_size', type=int, default = 212, help="number of layers", required=False)  
-        parser.add_argument('--n_layer', type=int, default = 8, help="number of layers", required=False)
-        parser.add_argument('--n_head', type=int, default = 8, help="number of heads", required=False)
-        parser.add_argument('--n_embd', type=int, default = 256, help="embedding dimension", required=False)
+        parser.add_argument('--gen_size', type=int, default = 10000, help="number of molecules to generate", required=False)
+        parser.add_argument('--vocab_size', type=int, default = 144, help="vocab size", required=False) 
+        parser.add_argument('--block_size', type=int, default = 212, help="block size", required=False)  
+        parser.add_argument('--n_layer', type=int, default = 12, help="number of layers", required=False)
+        parser.add_argument('--n_head', type=int, default = 12, help="number of heads", required=False)
+        parser.add_argument('--n_embd', type=int, default = 768, help="embedding dimension", required=False)
 
         args = parser.parse_args()
 

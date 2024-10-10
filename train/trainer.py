@@ -134,9 +134,8 @@ class Trainer:
                 self.save_checkpoint()
         return None
         
-
-
-
+    # AHC fine-tune with the first scoring function
+    '''
     def train_ahc(self, wandb):
         model, config = self.model, self.config
         raw_model = model.module if hasattr(self.model, "module") else model
@@ -146,85 +145,11 @@ class Trainer:
         regex = re.compile(pattern)
         context = "C"
         x = torch.tensor([self.stoi[s] for s in regex.findall(context)], dtype=torch.long)[None,...].repeat(64, 1).to('cuda')
-        for step in tqdm(range(300), total=300):
+        for step in tqdm(range(400), total=400):
             seqs, probs, log_probs = sample(self.agent, x, 200,temperature=0.8, sample=True, top_k=10)
             seqs_x = torch.tensor(seqs[:,:-1], dtype=torch.long)
             seqs_y = torch.tensor(seqs[:,1:], dtype=torch.long)
-            agent_likelihood,_,_,_ = self.agent(seqs_x,seqs_y)
-            prior_likelihood,_,_,_ = self.prior(seqs_x,seqs_y)
-            smiles = []
-            valid_smiles = []
-            for seq in seqs: 
-                completion = ''.join([self.itos[int(i)] for i in seq])
-                completion = completion.replace('<', '')
-                smiles.append(completion)
-                if Chem.MolFromSmiles(completion) is not None:  
-                    valid_smiles.append(completion)
-            agent_likelihood = - agent_likelihood
-            prior_likelihoood = - prior_likelihood
-            filename = f"NP-MGDD/score_results/iterations_ahc_diversity_0.3/step_{step}.csv"  
-            with open(filename, mode='w', newline='') as file:
-                writer = csv.writer(file)
-                writer.writerow(['step_id', 'smiles', 'valid', 'qed'])  
-                scores = []
-                diversity_scores = []
-                smiles_counts = Counter(smiles)
-                for s in smiles:
-                    mol = Chem.MolFromSmiles(s)
-                    is_valid = mol is not None  
-                    qed_value = QED.qed(mol) if is_valid else 0  
-                    scores.append(qed_value)
-                    diversity_score = self._calculate_diversity_score(s, smiles,smiles_counts)
-                    diversity_scores.append(diversity_score)
-                    writer.writerow([step, s, is_valid, qed_value, diversity_score])  
-            scores = torch.tensor(scores)
-            diversity_scores = torch.tensor(diversity_scores)
-            total_scores = scores+diversity_scores
-            total_scores = torch.autograd.Variable(total_scores).cuda()
-            loss = self._compute_loss_ahc(prior_likelihood, agent_likelihood, total_scores)
-            loss = loss.mean()
-            model.zero_grad()
-            scaler.scale(loss).backward()
-            scaler.unscale_(optimizer)
-            torch.nn.utils.clip_grad_norm_(model.parameters(), config.grad_norm_clip)
-            scaler.step(optimizer)
-            scaler.update()
-            self.tokens = 0
-            if config.lr_decay:
-                self.tokens += (seqs >= 0).sum() # number of tokens processed this step (i.e. label is not -100)
-                if self.tokens < config.warmup_tokens:
-                    # linear warmup
-                    lr_mult = float(self.tokens) / float(max(1, config.warmup_tokens))
-                else:
-                    # cosine learning rate decay
-                    progress = float(self.tokens - config.warmup_tokens) / float(max(1, config.final_tokens - config.warmup_tokens))
-                    lr_mult = max(0.1, 0.5 * (1.0 + math.cos(math.pi * progress)))
-                lr = config.learning_rate * lr_mult
-                for param_group in optimizer.param_groups:
-                        param_group['lr'] = lr
-            else:
-                lr = config.learning_rate
             
-            if self.config.ckpt_path is not None :
-                print(f'Saving the model')
-                self.save_checkpoint()            
-        return None
-
-
-
-    def train_reinvent(self, wandb):
-        model, config = self.model, self.config
-        raw_model = model.module if hasattr(self.model, "module") else model
-        optimizer = raw_model.configure_optimizers(config)
-        scaler = GradScaler()
-        pattern =  "(\[[^\]]+]|<|Br?|Cl?|N|O|S|P|F|I|b|c|n|o|s|p|\(|\)|\.|=|#|-|\+|\\\\|\/|:|~|@|\?|>|\*|\$|\%[0-9]{2}|[0-9])"
-        regex = re.compile(pattern)
-        context = "C"
-        x = torch.tensor([self.stoi[s] for s in regex.findall(context)], dtype=torch.long)[None,...].repeat(64, 1).to('cuda')
-        for step in tqdm(range(300), total=300):
-            seqs, probs, log_probs = sample(self.agent, x, 200,temperature=0.8, sample=True, top_k=10)
-            seqs_x = torch.tensor(seqs[:,:-1], dtype=torch.long)
-            seqs_y = torch.tensor(seqs[:,1:], dtype=torch.long)
             agent_likelihood,_,_,_ = self.agent(seqs_x,seqs_y)
             prior_likelihood,_,_,_ = self.prior(seqs_x,seqs_y)
             smiles = []
@@ -240,7 +165,7 @@ class Trainer:
             prior_likelihoood = - prior_likelihood
             print("The size of prior_likelihood:",prior_likelihood.size())
             
-            filename = f"NP-MGDD/score_results/iterations_reinvent/step_{step}.csv"  
+            filename = f"NP-MGDD/score_results/iterations_ahc_gpt1_400_topk_0.25/step_{step}.csv"  
             with open(filename, mode='w', newline='') as file:
                 writer = csv.writer(file)
                 writer.writerow(['step_id', 'smiles', 'valid', 'qed'])  
@@ -254,7 +179,8 @@ class Trainer:
             scores = torch.tensor(scores)
             print("The size of scores:",scores.size())
             scores = torch.autograd.Variable(scores).cuda()
-            loss = self._compute_loss_reinvent(prior_likelihood, agent_likelihood, scores)
+            loss = self._compute_loss_ahc(prior_likelihood, agent_likelihood, scores)
+           
             loss = loss.mean()
             model.zero_grad()
             scaler.scale(loss).backward()
@@ -281,8 +207,162 @@ class Trainer:
             if self.config.ckpt_path is not None :
                 print(f'Saving the model')
                 self.save_checkpoint()
+            
+        return None
+    '''
+
+    # AHC fine-tune with the second scoring function 
+    def train_ahc(self, wandb):
+        model, config = self.model, self.config
+        raw_model = model.module if hasattr(self.model, "module") else model
+        optimizer = raw_model.configure_optimizers(config)
+        scaler = GradScaler()
+        pattern =  "(\[[^\]]+]|<|Br?|Cl?|N|O|S|P|F|I|b|c|n|o|s|p|\(|\)|\.|=|#|-|\+|\\\\|\/|:|~|@|\?|>|\*|\$|\%[0-9]{2}|[0-9])"
+        regex = re.compile(pattern)
+        context = "C"
+        x = torch.tensor([self.stoi[s] for s in regex.findall(context)], dtype=torch.long)[None,...].repeat(64, 1).to('cuda')
+        for step in tqdm(range(400), total=400):
+            
+            seqs, probs, log_probs = sample(self.agent, x, 200,temperature=0.8, sample=True, top_k=10) 
+            seqs_x = torch.tensor(seqs[:,:-1], dtype=torch.long)
+            seqs_y = torch.tensor(seqs[:,1:], dtype=torch.long)
+            agent_likelihood,_,_,_ = self.agent(seqs_x,seqs_y)
+            prior_likelihood,_,_,_ = self.prior(seqs_x,seqs_y)
+            smiles = []
+            valid_smiles = []
+            for seq in seqs: 
+                completion = ''.join([self.itos[int(i)] for i in seq])
+                completion = completion.replace('<', '')
+                smiles.append(completion)
+                if Chem.MolFromSmiles(completion) is not None:  
+                    valid_smiles.append(completion)
+            agent_likelihood = - agent_likelihood
+            prior_likelihoood = - prior_likelihood
+   
+            filename = f"autodl-tmp/MolGPT/score_results/iterations_ahc_gpt1_400_topk_0.25_diversity/step_{step}.csv"  
+            with open(filename, mode='w', newline='') as file:
+                writer = csv.writer(file)
+                writer.writerow(['step_id', 'smiles', 'valid', 'qed'])  
+                scores = []
+                diversity_scores = []
+                smiles_counts = Counter(smiles)
+                for s in smiles:
+                    mol = Chem.MolFromSmiles(s)
+                    is_valid = mol is not None  
+                    qed_value = QED.qed(mol) if is_valid else 0  
+                    scores.append(qed_value)
+                    diversity_score = self._calculate_diversity_score(s, smiles,smiles_counts)
+                    diversity_scores.append(diversity_score)
+                    writer.writerow([step, s, is_valid, qed_value, diversity_score])  
+            scores = torch.tensor(scores)
+            diversity_scores = torch.tensor(diversity_scores)
+            total_scores = scores+diversity_scores
+          
+            total_scores = torch.autograd.Variable(total_scores).cuda()
+            loss = self._compute_loss_ahc(prior_likelihood, agent_likelihood, total_scores)
+           
+            loss = loss.mean()
+            model.zero_grad()
+            scaler.scale(loss).backward()
+            scaler.unscale_(optimizer)
+            torch.nn.utils.clip_grad_norm_(model.parameters(), config.grad_norm_clip)
+            scaler.step(optimizer)
+            scaler.update()
+            self.tokens = 0
+            if config.lr_decay:
+                self.tokens += (seqs >= 0).sum() # number of tokens processed this step (i.e. label is not -100)
+                if self.tokens < config.warmup_tokens:
+                    # linear warmup
+                    lr_mult = float(self.tokens) / float(max(1, config.warmup_tokens))
+                else:
+                    # cosine learning rate decay
+                    progress = float(self.tokens - config.warmup_tokens) / float(max(1, config.final_tokens - config.warmup_tokens))
+                    lr_mult = max(0.1, 0.5 * (1.0 + math.cos(math.pi * progress)))
+                lr = config.learning_rate * lr_mult
+                for param_group in optimizer.param_groups:
+                        param_group['lr'] = lr
+            else:
+                lr = config.learning_rate
+            
+            if self.config.ckpt_path is not None :
+                print(f'Saving the model')
+                self.save_checkpoint()
+            
         return None
 
+
+    def train_reinvent(self, wandb):
+        model, config = self.model, self.config
+        raw_model = model.module if hasattr(self.model, "module") else model
+        optimizer = raw_model.configure_optimizers(config)
+        scaler = GradScaler()
+        pattern =  "(\[[^\]]+]|<|Br?|Cl?|N|O|S|P|F|I|b|c|n|o|s|p|\(|\)|\.|=|#|-|\+|\\\\|\/|:|~|@|\?|>|\*|\$|\%[0-9]{2}|[0-9])"
+        regex = re.compile(pattern)
+        context = "C"
+        x = torch.tensor([self.stoi[s] for s in regex.findall(context)], dtype=torch.long)[None,...].repeat(64, 1).to('cuda')
+        for step in tqdm(range(400), total=400):
+            seqs, probs, log_probs = sample(self.agent, x, 200,temperature=0.8, sample=True, top_k=10)
+            seqs_x = torch.tensor(seqs[:,:-1], dtype=torch.long)
+            seqs_y = torch.tensor(seqs[:,1:], dtype=torch.long)
+            agent_likelihood,_,_,_ = self.agent(seqs_x,seqs_y)
+            prior_likelihood,_,_,_ = self.prior(seqs_x,seqs_y)
+            smiles = []
+            valid_smiles = []
+            for seq in seqs: 
+                completion = ''.join([self.itos[int(i)] for i in seq])
+                completion = completion.replace('<', '')
+                smiles.append(completion)
+                if Chem.MolFromSmiles(completion) is not None:  
+                    valid_smiles.append(completion)
+            agent_likelihood = - agent_likelihood
+            print("The size of agent_likelihood:",agent_likelihood.size())
+            prior_likelihoood = - prior_likelihood
+            print("The size of prior_likelihood:",prior_likelihood.size())
+            
+            filename = f"NP-MGDD/score_results/iterations_reinvent_gpt1_400/step_{step}.csv"  
+            with open(filename, mode='w', newline='') as file:
+                writer = csv.writer(file)
+                writer.writerow(['step_id', 'smiles', 'valid', 'qed'])  
+                scores = []
+                for s in smiles:
+                    mol = Chem.MolFromSmiles(s)
+                    is_valid = mol is not None  
+                    qed_value = QED.qed(mol) if is_valid else 0  
+                    scores.append(qed_value)
+                    writer.writerow([step, s, is_valid, qed_value])  
+            scores = torch.tensor(scores)
+            print("The size of scores:",scores.size())
+            scores = torch.autograd.Variable(scores).cuda()
+            loss = self._compute_loss_reinvent(prior_likelihood, agent_likelihood, scores)
+           
+            loss = loss.mean()
+            model.zero_grad()
+            scaler.scale(loss).backward()
+            scaler.unscale_(optimizer)
+            torch.nn.utils.clip_grad_norm_(model.parameters(), config.grad_norm_clip)
+            scaler.step(optimizer)
+            scaler.update()
+            self.tokens = 0
+            if config.lr_decay:
+                self.tokens += (seqs >= 0).sum() # number of tokens processed this step (i.e. label is not -100)
+                if self.tokens < config.warmup_tokens:
+                    # linear warmup
+                    lr_mult = float(self.tokens) / float(max(1, config.warmup_tokens))
+                else:
+                    # cosine learning rate decay
+                    progress = float(self.tokens - config.warmup_tokens) / float(max(1, config.final_tokens - config.warmup_tokens))
+                    lr_mult = max(0.1, 0.5 * (1.0 + math.cos(math.pi * progress)))
+                lr = config.learning_rate * lr_mult
+                for param_group in optimizer.param_groups:
+                        param_group['lr'] = lr
+            else:
+                lr = config.learning_rate
+            
+            if self.config.ckpt_path is not None :
+                print(f'Saving the model')
+                self.save_checkpoint()
+            
+        return None
     
     
     def train_reinforce(self, wandb):
@@ -294,7 +374,7 @@ class Trainer:
         regex = re.compile(pattern)
         context = "C"
         x = torch.tensor([self.stoi[s] for s in regex.findall(context)], dtype=torch.long)[None,...].repeat(64, 1).to('cuda')
-        for step in tqdm(range(300), total=300):
+        for step in tqdm(range(400), total=400):
             seqs, probs, log_probs = sample(self.agent, x, 200,temperature=0.8, sample=True, top_k=10)
             seqs_x = torch.tensor(seqs[:,:-1], dtype=torch.long)
             seqs_y = torch.tensor(seqs[:,1:], dtype=torch.long)
@@ -308,7 +388,7 @@ class Trainer:
                 if Chem.MolFromSmiles(completion) is not None:  
                     valid_smiles.append(completion)
             agent_likelihood = - agent_likelihood
-            filename = f"NP-MGDD/score_results/iterations_reinforce/step_{step}.csv"  
+            filename = f"NP-MGDD/score_results/iterations_reinforce_gpt1_400/step_{step}.csv"  
             with open(filename, mode='w', newline='') as file:
                 writer = csv.writer(file)
                 writer.writerow(['step_id', 'smiles', 'valid', 'qed'])  
@@ -366,7 +446,7 @@ class Trainer:
         
     def _compute_loss_ahc(self, prior_likelihood, agent_likelihood, scores):
         sigma = 120
-        topk = 0.5
+        topk = 0.25
         augmented_likelihood = prior_likelihood + sigma * scores
         sscore, sscore_idxs = scores.sort(descending=True)
         loss = torch.pow((augmented_likelihood - agent_likelihood), 2)

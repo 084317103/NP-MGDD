@@ -26,11 +26,6 @@ class GPTConfig:
         for k,v in kwargs.items():
             setattr(self, k, v)
             
-class GPT1Config(GPTConfig):
-    """ GPT-1 like network roughly 125M params """
-    n_layer = 12
-    n_head = 12
-    n_embd = 768
     
 class CausalSelfAttention(nn.Module):
     """

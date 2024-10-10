@@ -11,6 +11,26 @@ from rdkit.Chem import AllChem
 from rdkit.Chem import Descriptors
 from rdkit.DataStructs.cDataStructs import TanimotoSimilarity
 
+def Variable(tensor):
+    """Wrapper for torch.autograd.Variable that also accepts
+       numpy arrays directly and automatically assigns it to
+       the GPU. Be aware in case some operations are better
+       left to the CPU."""
+    if isinstance(tensor, np.ndarray):
+        tensor = torch.from_numpy(tensor)
+    if torch.cuda.is_available():
+        return torch.autograd.Variable(tensor).cuda()
+    return torch.autograd.Variable(tensor)
+    
+def unique(arr):
+    # Finds unique rows in arr and return their indices
+    arr = arr.cpu().numpy()
+    arr_ = np.ascontiguousarray(arr).view(np.dtype((np.void, arr.dtype.itemsize * arr.shape[1])))
+    _, idxs = np.unique(arr_, return_index=True)
+    if torch.cuda.is_available():
+        return torch.LongTensor(np.sort(idxs)).cuda()
+    return torch.LongTensor(np.sort(idxs))
+    
 def to_tensor(tensor):
     if isinstance(tensor, np.ndarray):
         tensor = torch.from_numpy(tensor)

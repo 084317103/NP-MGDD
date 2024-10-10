@@ -26,15 +26,15 @@ if __name__ == '__main__':
                         help="name for wandb run", required=False)
     parser.add_argument('--debug', action='store_true',
                         default=False, help='debug')
-    parser.add_argument('--n_layer', type=int, default=8,
+    parser.add_argument('--n_layer', type=int, default=12,
                         help="number of layers", required=False)
-    parser.add_argument('--n_head', type=int, default=8,
+    parser.add_argument('--n_head', type=int, default=12,
                         help="number of heads", required=False)
-    parser.add_argument('--n_embd', type=int, default=256,
+    parser.add_argument('--n_embd', type=int, default=768,
                         help="embedding dimension", required=False)
-    parser.add_argument('--max_epochs', type=int, default=10,
+    parser.add_argument('--max_epochs', type=int, default=8,
                         help="total epochs", required=False)
-    parser.add_argument('--batch_size', type=int, default=512,
+    parser.add_argument('--batch_size', type=int, default=64,
                         help="batch size", required=False)
     parser.add_argument('--learning_rate', type=int,
                         default=6e-4, help="learning rate", required=False)
@@ -42,7 +42,7 @@ if __name__ == '__main__':
 
     args = parser.parse_args()
     set_seed(42)
-    wandb.init(project="gpt", name=args.run_name)
+    wandb.init(project="gpt1", name=args.run_name)
  
     with open('NP-MGDD/datasets/zuhe/merged_smiles_after.txt','r') as file:
         smiles_list = file.readlines()

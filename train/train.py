@@ -9,7 +9,7 @@ import torch.nn as nn
 from torch.utils.data import DataLoader
 from torch.nn import functional as F
 from torch.cuda.amp import GradScaler
-from model import GPT, GPT1Config
+from model import GPT, GPTConfig
 from trainer import Trainer, TrainerConfig
 from dataset import SmileDataset
 import math
@@ -91,7 +91,7 @@ if __name__ == '__main__':
     train_dataset = SmileDataset(args, smiles, whole_string, max_len)
     valid_dataset = SmileDataset(args, vsmiles, whole_string, max_len)
 
-    mconf = GPT1Config(train_dataset.vocab_size, train_dataset.max_len,  
+    mconf = GPTConfig(train_dataset.vocab_size, train_dataset.max_len,  
                         n_layer=args.n_layer, n_head=args.n_head, n_embd=args.n_embd)
     model = GPT(mconf)
 

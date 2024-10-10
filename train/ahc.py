@@ -27,13 +27,13 @@ if __name__ == '__main__':
                         default=False, help='debug')
     parser.add_argument('--vocab_size', type=int, default = 144, required=False)
     parser.add_argument('--block_size', type=int, default = 212, required=False)
-    parser.add_argument('--n_layer', type=int, default=8,
+    parser.add_argument('--n_layer', type=int, default=12,
                         help="number of layers", required=False)
-    parser.add_argument('--n_head', type=int, default=8,
+    parser.add_argument('--n_head', type=int, default=12,
                         help="number of heads", required=False)
-    parser.add_argument('--n_embd', type=int, default=256,
+    parser.add_argument('--n_embd', type=int, default=768,
                         help="embedding dimension", required=False)
-    parser.add_argument('--max_epochs', type=int, default=10,
+    parser.add_argument('--max_epochs', type=int, default=400,
                         help="total epochs", required=False)
     parser.add_argument('--batch_size', type=int, default=64,
                         help="batch size", required=False)
@@ -43,7 +43,7 @@ if __name__ == '__main__':
 
     args = parser.parse_args()
     set_seed(42)
-    wandb.init(project="gpt", name=args.run_name)
+    wandb.init(project="gpt1", name=args.run_name)
     
     with open('NP-MGDD/datasets/zuhe/merged_smiles_after.txt','r') as file:
         smiles_list = file.readlines()
@@ -82,12 +82,12 @@ if __name__ == '__main__':
                         n_layer=args.n_layer, n_head=args.n_head, n_embd=args.n_embd）
     model = GPT(mconf)
     model.load_state_dict(torch.load(args.model_weight))
-    model.to('cuda')
+    model = torch.nn.DataParallel(model).cuda()
 
     tconf = TrainerConfig(max_epochs=args.max_epochs, batch_size=args.batch_size, learning_rate=args.learning_rate,
                             lr_decay=True, warmup_tokens=0.1*len(smiles)*max_len, 
                             final_tokens=args.max_epochs*len(smiles)*max_len, num_workers=10, 
-                            ckpt_path=f'NP-MGDD/weights/ahc-diversity-0.2-300.pt', block_size=train_dataset.max_len, generate=True)
+                            ckpt_path=f'NP-MGDD/weights/ahc_gpt1_diversity_400_topk_0.25.pt', block_size=train_dataset.max_len, generate=True)
     trainer = Trainer(model, train_dataset, valid_dataset,
                         tconf, train_dataset.stoi, train_dataset.itos)
     if hasattr(torch.cuda, 'empty_cache'):

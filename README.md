@@ -19,15 +19,20 @@ NP-MGDD
 ## 2.pre-train
   Then, use the script to perform the model pre-training process, where run_name is the name used to save the model.
 ~~~
-python NP-MGDD/train/train.py --run_name pretrain --batch_size 128 --max_epochs 10
+python NP-MGDD/train/train.py --run_name pretrain-8-layer-12 --batch_size 64 --max_epochs 8
 ~~~
 ## 3.reinforcement learning
   Then, use the script to perform the reinforcement learning process，where run_name is the name used to save the model and model_weight indicates which model is used for reinforcement learning training.
+  AHC with the first scoring function 
 ~~~
-python NP-MGDD/train/ahc.py --run_name ahc-300 --batch_size 64 --max_epochs 300 --model_weight autodl-tmp/MolGPT/cond_gpt/weights/pretrain.pt
+python NP-MGDD/train/ahc.py --run_name ahc-gpt1-400-topk-0.25 --batch_size 64 --max_epochs 400 --model_weight autodl-tmp/MolGPT/cond_gpt/weights/pretrain-8-layer-12.pt
+~~~
+  AHC with the second scoring function
+~~~
+python NP-MGDD/train/ahc.py --run_name ahc_gpt1_diversity_400_topk_0.25 --batch_size 64 --max_epochs 400 --model_weight autodl-tmp/MolGPT/cond_gpt/weights/pretrain-8-layer-12.pt
 ~~~
 ## 4.generating
   Finally, use the script to preform the generating process, where model_weight refers to the model used for generation, csv_name specifies the filename for saving the generated SMILES, and gen_size indicates the total number of generated molecules.
 ~~~
-python NP-MGDD/generate/generate.py --model_weight NP-MGDD/weights/ahc-diversity-0.2-300.pt --csv_name ahc-300-generation --gen_size 10000 --batch_size 128
+python NP-MGDD/generate/generate.py --model_weight NP-MGDD/weights/ahc_gpt1_diversity_400_topk_0.25.pt --csv_name ahc-400-generation --gen_size 10000 --batch_size 128
 ~~~

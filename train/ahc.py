@@ -79,7 +79,7 @@ if __name__ == '__main__':
     valid_dataset = SmileDataset(args, vsmiles, whole_string, max_len)
 
     mconf = GPTConfig(args.vocab_size, args.block_size,  
-                        n_layer=args.n_layer, n_head=args.n_head, n_embd=args.n_embd）
+                        n_layer=args.n_layer, n_head=args.n_head, n_embd=args.n_embd)
     model = GPT(mconf)
     model.load_state_dict(torch.load(args.model_weight))
     model = torch.nn.DataParallel(model).cuda()

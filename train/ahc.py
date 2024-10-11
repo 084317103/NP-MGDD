@@ -87,7 +87,7 @@ if __name__ == '__main__':
     tconf = TrainerConfig(max_epochs=args.max_epochs, batch_size=args.batch_size, learning_rate=args.learning_rate,
                             lr_decay=True, warmup_tokens=0.1*len(smiles)*max_len, 
                             final_tokens=args.max_epochs*len(smiles)*max_len, num_workers=10, 
-                            ckpt_path=f'NP-MGDD/weights/ahc_gpt1_diversity_400_topk_0.25.pt', block_size=train_dataset.max_len, generate=True)
+                            ckpt_path=f'NP-MGDD/weights/ahc-gpt1-diversity-400-topk-0.25.pt', block_size=train_dataset.max_len, generate=True)
     trainer = Trainer(model, train_dataset, valid_dataset,
                         tconf, train_dataset.stoi, train_dataset.itos)
     if hasattr(torch.cuda, 'empty_cache'):

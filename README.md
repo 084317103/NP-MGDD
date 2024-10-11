@@ -1,6 +1,6 @@
 NP-MGDD
 =======
-  Our project's goal is to use the NP-MGDD method, which combines GPT1 and AHC, to generate drug-like molecules for drug discovery.
+  Our project's goal is to use the NP-MGDD method, which combines GPT1 and AHC, to generate drug-like natural products for drug discovery.
 # Requirements
 * Python 3.8.10
 * rdkit 2022.9.5
@@ -33,11 +33,11 @@ python NP-MGDD/train/reinvent.py --run_name reinvent-gpt1-400 --batch_size 64 --
 ~~~
 REINFORCE with the first scoring function
 ~~~
-python NP-MGDD/train/ahc.py --run_name reinforce-gpt1-400 --batch_size 64 --max_epochs 400 --model_weight autodl-tmp/MolGPT/cond_gpt/weights/pretrain-8-layer-12.pt
+python NP-MGDD/train/reinforce.py --run_name reinforce-gpt1-400 --batch_size 64 --max_epochs 400 --model_weight autodl-tmp/MolGPT/cond_gpt/weights/pretrain-8-layer-12.pt
 ~~~
   AHC with the second scoring function
 ~~~
-python NP-MGDD/train/ahc.py --run_name ahc_gpt1_diversity_400_topk_0.25 --batch_size 64 --max_epochs 400 --model_weight autodl-tmp/MolGPT/cond_gpt/weights/pretrain-8-layer-12.pt
+python NP-MGDD/train/ahc.py --run_name ahc-gpt1-diversity-400-topk_0.25 --batch_size 64 --max_epochs 400 --model_weight autodl-tmp/MolGPT/cond_gpt/weights/pretrain-8-layer-12.pt
 ~~~
 ## 4.generating
   Finally, use the script to preform the generating process, where model_weight refers to the model used for generation, csv_name specifies the filename for saving the generated SMILES, and gen_size indicates the total number of generated molecules.

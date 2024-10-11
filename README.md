@@ -42,5 +42,5 @@ python NP-MGDD/train/ahc.py --run_name ahc-gpt1-diversity-400-topk_0.25 --batch_
 ## 4.generating
   Finally, use the script to preform the generating process, where model_weight refers to the model used for generation, csv_name specifies the filename for saving the generated SMILES, and gen_size indicates the total number of generated molecules.
 ~~~
-python NP-MGDD/generate/generate.py --model_weight NP-MGDD/weights/ahc-gpt1-diversity-400-topk-0.25.pt --csv_name ahc-400-generation --gen_size 10000 --batch_size 128
+python NP-MGDD/generate/generate.py --model_weight NP-MGDD/weights/ahc-gpt1-diversity-400-topk-0.25.pt --csv_name ahc-400-generation --gen_size 10000 --batch_size 64
 ~~~

@@ -1,6 +1,6 @@
 NP-MGDD
 =======
-  Our project's goal is to use the NP-MGDD method, which combines GPT and AHC, to generate drug-like molecules for drug discovery.We collected SMILES strings from four types of natural product libraries in the datasets/zuhe/data_before folder. Then, we removed the invalid SMILES in the datasets/zuhe/data_remove_invalid folder. After that, we merged these four natural product libraries, removing duplicate SMILES, resulting in the datasets/zuhe/merged_smiles.txt file.
+  Our project's goal is to use the NP-MGDD method, which combines GPT1 and AHC, to generate drug-like molecules for drug discovery.
 # Requirements
 * Python 3.8.10
 * rdkit 2022.9.5
@@ -26,6 +26,14 @@ python NP-MGDD/train/train.py --run_name pretrain-8-layer-12 --batch_size 64 --m
   AHC with the first scoring function 
 ~~~
 python NP-MGDD/train/ahc.py --run_name ahc-gpt1-400-topk-0.25 --batch_size 64 --max_epochs 400 --model_weight autodl-tmp/MolGPT/cond_gpt/weights/pretrain-8-layer-12.pt
+~~~
+  REINVENT with the first scoring function
+~~~
+python NP-MGDD/train/reinvent.py --run_name reinvent-gpt1-400 --batch_size 64 --max_epochs 400 --model_weight autodl-tmp/MolGPT/cond_gpt/weights/pretrain-8-layer-12.pt
+~~~
+REINFORCE with the first scoring function
+~~~
+python NP-MGDD/train/ahc.py --run_name reinforce-gpt1-400 --batch_size 64 --max_epochs 400 --model_weight autodl-tmp/MolGPT/cond_gpt/weights/pretrain-8-layer-12.pt
 ~~~
   AHC with the second scoring function
 ~~~

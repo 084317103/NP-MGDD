@@ -23,19 +23,19 @@ python NP-MGDD/train/train.py --run_name pretrain-8-layer-12 --batch_size 64 --m
 ~~~
 ## 3.reinforcement learning
   Then, use the script to perform the reinforcement learning process，where run_name is the name used to save the model and model_weight indicates which model is used for reinforcement learning training.
-  AHC with the first scoring function 
+(1) AHC with the first scoring function 
 ~~~
 python NP-MGDD/train/ahc.py --run_name ahc-gpt1-400-topk-0.25 --batch_size 64 --max_epochs 400 --model_weight NP-MGDD/weights/pretrain-8-layer-12.pt
 ~~~
-  REINVENT with the first scoring function
+(2) REINVENT with the first scoring function
 ~~~
 python NP-MGDD/train/reinvent.py --run_name reinvent-gpt1-400 --batch_size 64 --max_epochs 400 --model_weight NP-MGDD/weights/pretrain-8-layer-12.pt
 ~~~
-REINFORCE with the first scoring function
+(3) REINFORCE with the first scoring function
 ~~~
 python NP-MGDD/train/reinforce.py --run_name reinforce-gpt1-400 --batch_size 64 --max_epochs 400 --model_weight NP-MGDD/weights/pretrain-8-layer-12.pt
 ~~~
-  AHC with the second scoring function
+(4) AHC with the second scoring function
 ~~~
 python NP-MGDD/train/ahc.py --run_name ahc-gpt1-diversity-400-topk_0.25 --batch_size 64 --max_epochs 400 --model_weight NP-MGDD/weights/pretrain-8-layer-12.pt
 ~~~

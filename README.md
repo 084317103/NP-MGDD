@@ -1,6 +1,6 @@
 NP-MGDD
 =======
-  Our project's goal is to use the NP-MGDD method, which combines GPT1 and AHC, to generate drug-like natural products for drug discovery.
+  Our project's goal is to use the NP-MGDD method, which combines GPT1 and AHC, to generate drug-like natural products for drug discovery.The code in this repository is inspired on MolGPT (https://github.com/devalab/molgpt) and AHC(https://github.com/MorganCThomas/SMILES-RNN).
 # Requirements
 * Python 3.8.10
 * rdkit 2022.9.5

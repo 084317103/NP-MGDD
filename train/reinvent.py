@@ -81,7 +81,7 @@ if __name__ == '__main__':
                         n_layer=args.n_layer, n_head=args.n_head, n_embd=args.n_embd)
     model = GPT(mconf)
     model.load_state_dict(torch.load(args.model_weight))
-    model = model.to('cuda')
+    model = torch.nn.DataParallel(model).cuda()
 
     tconf = TrainerConfig(max_epochs=args.max_epochs, batch_size=args.batch_size, learning_rate=args.learning_rate,
                             lr_decay=True, warmup_tokens=0.1*len(smiles)*max_len, 

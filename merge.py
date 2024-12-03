@@ -14,12 +14,12 @@ def extract_smiles(file_path):
                     smiles_set.add(smiles)
     return smiles_set
 
-file_paths = ['NPMGDD/datasets/zuhe/tcmbank_after.txt', 'NPMGDD/datasets/zuhe/npass_after.txt', 'NPMGDD/datasets/zuhe/inflamnat.txt', 'NPMGDD/datasets/zuhe/cmaup.txt']
+file_paths = ['NP-MGDD/datasets/zuhe/data_remove_invalid/tcmbank_after.txt', 'NP-MGDD/datasets/zuhe/data_remove_invalid/npass_after.txt', 'NP-MGDD/datasets/zuhe/data_remove_invalid/inflamnat.txt', 'NP-MGDD/datasets/zuhe/data_remove_invalid/cmaup.txt']
 
 unique_smiles = set()
 for file_path in file_paths:
     unique_smiles.update(extract_smiles(file_path))
 
-with open('NPMGDD/datasets/zuhe/merged_smiles.txt', 'w') as f:
+with open('NP-MGDD/datasets/zuhe/merged_smiles.txt', 'w') as f:
     for smiles in unique_smiles:
         f.write(smiles + '\n')

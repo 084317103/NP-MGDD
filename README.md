@@ -15,7 +15,7 @@ NP-MGDD
 * json5 0.9.6
 # Usage
 ## 1. data preprocess
-The four txt files in the datasets/zuhe/data_before directory contain the SMILES of natural products collected from four different natural product libraries. After removing invalid SMILES, the results are saved in the datasets/zuhe/data_remove_invalid directory. The SMILES from the four files in the datasets/zuhe/data_remove_invalid directory are then merged, with duplicate SMILES removed, and saved in datasets/zuhe/merged_smiles.txt. Use data-preprocess.py to remove SMILES strings with a number of non-hydrogen atoms less than 10 (small molecules) or greater than 100 (large molecules)，and the processed SMILES strings are saved in the datasets/zuhe/merged_smiles_after.txt file.
+The four txt files in the 'datasets/zuhe/data_before' directory contain the SMILES of natural products collected from four different natural product libraries. Use 'check_valid.py' to remove invalid SMILES, and the results are saved in the 'datasets/zuhe/data_remove_invalid' directory. Use 'merge.py' to combine the SMILES from the four files in the 'datasets/zuhe/data_remove_invalid' directory, remove duplicate SMILES, and save the result to 'datasets/zuhe/merged_smiles.txt'. Use 'data-preprocess.py' to remove SMILES strings with a number of non-hydrogen atoms less than 10 (small molecules) or greater than 100 (large molecules)，and the processed SMILES strings are saved in the 'datasets/zuhe/merged_smiles_after.txt'.
 ## 2.pre-train
   Then, use the script to perform the model pre-training process, where run_name is the name used to save the model.
 ~~~
